@@ -118,14 +118,6 @@ return {
 				keybind_type = "function_call",
 				function_name = "activate_expedition_view",
 			},
-			{
-				setting_id = "open_soloplay_view_key",
-				type = "keybind",
-				default_value = {},
-				keybind_trigger = "pressed",
-				keybind_type = "function_call",
-				function_name = "activate_soloplay_view",
-			},
 		}
 	}
 }

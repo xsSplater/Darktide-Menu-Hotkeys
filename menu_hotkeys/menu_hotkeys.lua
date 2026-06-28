@@ -90,35 +90,3 @@ for view_name, func_name in pairs(view_function_map) do
 		activate_hub_view(view_name)
 	end
 end
-
--- ################## SoloPlay View #############################
-mod.activate_soloplay_view = function(self)
-	local ui_manager = Managers.ui
-	if not ui_manager then
-		return
-	end
-
-	-- Checking whether hotkeys are allowed in the current location
-	if not is_in_valid_lvl() then
-		return
-	end
-
-	-- Do not open if chat input is active
-	if ui_manager:chat_using_input() then
-		return
-	end
-
-	-- If the "Close menu with hotkey" option is enabled and the menu is already open, close it
-	if mod:get("close_menu_with_hotkey") then
-		if ui_manager:view_active("soloplay_mod_view") then
-			ui_manager:close_view("soloplay_mod_view")
-			return
-		end
-	end
-
-	-- Get the SoloPlay mod and open its view
-	local soloplay_mod = get_mod("SoloPlay")
-	if soloplay_mod and soloplay_mod.open_solo_view then
-		soloplay_mod.open_solo_view()
-	end
-end
