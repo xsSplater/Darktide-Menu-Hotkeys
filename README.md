@@ -1,3 +1,5 @@
+<a href="https://www.nexusmods.com/warhammer40kdarktide/mods/969"><img src="https://staticdelivery.nexusmods.com/mods/4943/images/969/969-1782649091-282785918.png"></a>
+
 # +++ Features
 This mod lets you assign hotkeys for the various menus:
  - Barber shop.
