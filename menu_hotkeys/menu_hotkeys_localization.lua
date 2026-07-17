@@ -30,6 +30,20 @@ return {
 		es = "Abra varios menús desde el Centro, el Psykhanium y el modo Solitario con teclas rápidas.",
  ["pt-br"] = "Abra vários menus do Hub, do Psykhanium e do Solo Play com teclas de atalho.",
 	},
+	settings_group = {
+		en = "Settings",
+		ru = "Настройки",
+ ["zh-cn"] = "设置",
+ ["zh-tw"] = "設定",
+		de = "Einstellungen",
+		fr = "Paramètres",
+		ja = "設定",
+		ko = "설정",
+		it = "Impostazioni",
+		pl = "Ustawienia",
+		es = "Ajustes",
+ ["pt-br"] = "Configurações",
+	},
 	enable_in_psykhanium = {
 		en = "Enable Hotkeys in the Psykhanium",
 		ru = "Включить горячие клавиши в Псайканиуме",
@@ -101,6 +115,20 @@ return {
  ["pt-br"] = "Permite fechar os menus com suas respectivas teclas de atalho.",
 	},
 
+	hotkeys_group = {
+		en = "Hotkeys",
+		ru = "Горячие клавиши",
+ ["zh-cn"] = "快捷键",
+ ["zh-tw"] = "快捷鍵",
+		de = "Hotkeys",
+		fr = "Raccourcis",
+		ja = "ホットキー",
+		ko = "단축키",
+		it = "Tasti rapidi",
+		pl = "Skróty klawiszowe",
+		es = "Teclas rápidas",
+ ["pt-br"] = "Teclas de atalho",
+	},
 	-- Inventory
 	open_inventory_view_key = {
 		en = "Inventory",
@@ -177,18 +205,42 @@ return {
  ["pt-br"] = "Requisitório de Sire Melk",
 	},
 	open_requisitorium_view_key_description = {
-		en = "Opens Sire Melk's Requisitorium menu.",
-		ru = "Открывает меню Реквизитория Сира Мелка.",
- ["zh-cn"] = "打开梅尔克大人的采购店菜单。",
- ["zh-tw"] = "打開梅爾克大人的採購店選單。",
-		de = "Öffnet das Requisitorium von Sire Melk.",
-		fr = "Ouvre le menu du Réquisitoire de Sire Melk.",
-		ja = "サー・メルクの調達所メニューを開きます。",
-		ko = "사이어 멜크의 조달소 메뉴를 엽니다.",
-		it = "Apre il menu del Requisitorium di Sire Melk.",
-		pl = "Otwiera menu Rekwizytorium Sir Melka.",
-		es = "Abre el menú del Requisitorio de Sire Melk.",
- ["pt-br"] = "Abre o menu do Requisitório de Sire Melk.",
+		en = "Opens Sire Melk's Requisitorium menu.\n"
+			.. "Warning!\n"
+			.. "If Sir Melk's menu closes after pressing the hotkey, try increasing the Debug bar value so that the Contracts menu has time to open before switching to the main menu.",
+		ru = "Открывает меню Реквизитория Сира Мелка.\n"
+			.. "Внимание!\n"
+			.. "Если меню Сира Мелка закрывается после нажатия горячей клавиши, попробуйте увеличить значение полоски в Отладке, чтобы меню Контрактов успевало открыться перед переходом в основное меню.",
+ ["zh-cn"] = "打开梅尔克大人的采购店菜单。\n"
+			.. "警告！\n"
+			.. "如果按下快捷键后梅尔克大人的菜单关闭，请尝试增加调试栏的值，以便合同菜单在切换到主菜单之前有足够时间打开。",
+ ["zh-tw"] = "打開梅爾克大人的採購店選單。\n"
+			.. "警告！\n"
+			.. "如果按下快捷鍵後梅爾克大人的選單關閉，請嘗試增加除錯欄的值，以便合約選單在切換到主選單之前有足夠時間開啟。",
+		de = "Öffnet das Requisitorium von Sire Melk.\n"
+			.. "Warnung!\n"
+			.. "Wenn das Menü von Sir Melk nach dem Drücken der Tastenkombination schließt, erhöhen Sie den Wert des Debug-Balkens, damit das Vertragsmenü Zeit hat, sich zu öffnen, bevor zum Hauptmenü gewechselt wird.",
+		fr = "Ouvre le menu du Réquisitoire de Sire Melk.\n"
+			.. "Attention !\n"
+			.. "Si le menu de Sire Melk se ferme après avoir appuyé sur le raccourci, essayez d'augmenter la valeur de la barre de débogage pour que le menu des contrats ait le temps de s'ouvrir avant de passer au menu principal.",
+		ja = "サー・メルクの調達所メニューを開きます。\n"
+			.. "警告！\n"
+			.. "ホットキーを押した後にサー・メルクのメニューが閉じてしまう場合は、デバッグバーの値を増やして、メインメニューに切り替わる前に契約メニューが開く時間を確保してみてください。",
+		ko = "사이어 멜크의 조달소 메뉴를 엽니다.\n"
+			.. "경고!\n"
+			.. "단축키를 누른 후 사이어 멜크의 메뉴가 닫히면 디버그 막대 값을 늘려 메인 메뉴로 전환되기 전에 계약 메뉴가 열릴 시간을 확보하세요.",
+		it = "Apre il menu del Requisitorium di Sire Melk.\n"
+			.. "Attenzione!\n"
+			.. "Se il menu di Sir Melk si chiude dopo aver premuto il tasto di scelta rapida, prova ad aumentare il valore della barra di debug in modo che il menu dei contratti abbia il tempo di aprirsi prima di passare al menu principale.",
+		pl = "Otwiera menu Rekwizytorium Sir Melka.\n"
+			.. "Ostrzeżenie!\n"
+			.. "Jeśli menu Sir Melka zamyka się po naciśnięciu skrótu klawiszowego, spróbuj zwiększyć wartość paska debugowania, aby menu kontraktów miało czas na otwarcie przed przejściem do głównego menu.",
+		es = "Abre el menú del Requisitorio de Sire Melk.\n"
+			.. "¡Advertencia!\n"
+			.. "Si el menú de Sir Melk se cierra después de pulsar la tecla de acceso rápido, intente aumentar el valor de la barra de depuración para que el menú de contratos tenga tiempo de abrirse antes de cambiar al menú principal.",
+ ["pt-br"] = "Abre o menu do Requisitório de Sire Melk.\n"
+			.. "Aviso!\n"
+			.. "Se o menu de Sir Melk fechar após pressionar a tecla de atalho, tente aumentar o valor da barra de depuração para que o menu de contratos tenha tempo de abrir antes de mudar para o menu principal.",
 	},
 
 	-- Contracts
@@ -224,7 +276,7 @@ return {
 	-- Crafting
 	open_crafting_view_key = {
 		en = "Crafting",
-		ru = "Ковка",
+		ru = "Кузница",
  ["zh-cn"] = "锻造",
  ["zh-tw"] = "鍛造",
 		de = "Handwerk",
@@ -254,7 +306,7 @@ return {
 	-- Armoury Exchange
 	open_credits_vendor_view_key = {
 		en = "Armoury Exchange",
-		ru = "Оружейный обмен",
+		ru = "Оружейная",
  ["zh-cn"] = "军械交易所",
  ["zh-tw"] = "軍械交易所",
 		de = "Waffenkammer",
@@ -269,7 +321,7 @@ return {
 	open_credits_vendor_view_key_description = {
 		en = "Opens the menu for purchasing Weapons and Curios.",
 		ru = "Открывает меню покупки оружия и реликвий.",
- ["zh-cn"] = "打开军械交易所界面。",
+ ["zh-cn"] = "打开军械兑换处，使用金币购买武器与饰品。",
  ["zh-tw"] = "打開軍械交易所介面。",
 		de = "Öffnet das Menü zum Kauf von Waffen und Kuriositäten.",
 		fr = "Ouvre le menu d'achat d'armes et de curiosités.",
@@ -329,7 +381,7 @@ return {
 	open_premium_store_view_key_description = {
 		en = "Opens the Premium Store view.",
 		ru = "Открывает магазин с премиумным снаряжением.",
- ["zh-cn"] = "打开准将的服装界面。",
+ ["zh-cn"] = "打开付费外观商店界面。",
  ["zh-tw"] = "打開准將的服裝介面。",
 		de = "Öffnet die Premium-Shop-Ansicht.",
 		fr = "Ouvre la vue de la boutique premium.",
@@ -495,8 +547,8 @@ return {
 	open_havoc_view_key = {
 		en = "Havoc Mode",
 		ru = "Режим Хавок",
- ["zh-cn"] = "Havoc Mode",
- ["zh-tw"] = "Havoc 模式",
+ ["zh-cn"] = "浩劫模式",
+ ["zh-tw"] = "浩劫模式",
 		de = "Havoc-Modus",
 		fr = "Mode Havoc",
 		ja = "ハボックモード",
@@ -509,8 +561,8 @@ return {
 	open_havoc_view_key_description = {
 		en = "Opens the Havoc menu.",
 		ru = "Открывает меню Хавока.",
- ["zh-cn"] = "打开 Havoc 菜单。",
- ["zh-tw"] = "打開 Havoc 選單。",
+ ["zh-cn"] = "打开浩劫模式选择界面。",
+ ["zh-tw"] = "開啟浩劫模式選擇介面。",
 		de = "Öffnet das Havoc-Menü.",
 		fr = "Ouvre le menu Havoc.",
 		ja = "ハボックメニューを開きます。",
@@ -525,8 +577,8 @@ return {
 	open_expedition_view_key = {
 		en = "Expedition Mode",
 		ru = "Режим Экспедиции",
- ["zh-cn"] = "Expedition Mode",
- ["zh-tw"] = "Expedition 模式",
+ ["zh-cn"] = "远征模式",
+ ["zh-tw"] = "遠徵模式",
 		de = "Expeditions-Modus",
 		fr = "Mode Expédition",
 		ja = "遠征モード",
@@ -539,8 +591,8 @@ return {
 	open_expedition_view_key_description = {
 		en = "Opens the Expedition Menu.",
 		ru = "Открывает меню Экспедиций.",
- ["zh-cn"] = "打开 Expedition 菜单。",
- ["zh-tw"] = "打開 Expedition 選單。",
+ ["zh-cn"] = "打开远征模式选择界面。",
+ ["zh-tw"] = "開啟遠徵模式選擇介面。",
 		de = "Öffnet das Expeditions-Menü.",
 		fr = "Ouvre le menu Expédition.",
 		ja = "遠征メニューを開きます。",
@@ -549,5 +601,77 @@ return {
 		pl = "Otwiera menu Ekspedycji.",
 		es = "Abre el menú Expedición.",
  ["pt-br"] = "Abre o menu Expedição.",
+	},
+	-- Quit Game
+	quit_game_key = {
+		en = "Quit Game",
+		ru = "Выйти из игры",
+ ["zh-cn"] = "退出游戏",
+ ["zh-tw"] = "退出遊戲",
+		de = "Spiel beenden",
+		fr = "Quitter le jeu",
+		ja = "ゲームを終了",
+		ko = "게임 종료",
+		it = "Esci dal gioco",
+		pl = "Zakończ grę",
+		es = "Salir del juego",
+ ["pt-br"] = "Sair do jogo",
+	},
+	quit_game_key_description = {
+		en = "Instantly quits the game.",
+		ru = "Немедленно закрывает игру.",
+ ["zh-cn"] = "立即退出游戏。",
+ ["zh-tw"] = "立即退出遊戲。",
+		de = "Beendet das Spiel sofort.",
+		fr = "Quitte immédiatement le jeu.",
+		ja = "ゲームを即座に終了します。",
+		ko = "게임을 즉시 종료합니다.",
+		it = "Esce immediatamente dal gioco.",
+		pl = "Natychmiast zamyka grę.",
+		es = "Sale inmediatamente del juego.",
+ ["pt-br"] = "Sai imediatamente do jogo.",
+	},
+
+	debug_group = {
+		en = "Debug",
+		ru = "Отладка",
+ ["zh-cn"] = "调试",
+ ["zh-tw"] = "除錯",
+		de = "Debug",
+		fr = "Débogage",
+		ja = "デバッグ",
+		ko = "디버그",
+		it = "Debug",
+		pl = "Debugowanie",
+		es = "Depuración",
+ ["pt-br"] = "Depuração",
+	},
+	requisitorium_close_delay = {
+		en = "Sir Melk's Menu Delay (ms)",
+		ru = "Задержка меню Сира Мелка (мс)",
+ ["zh-cn"] = "梅尔克大人菜单延迟（毫秒）",
+ ["zh-tw"] = "梅爾克大人選單延遲（毫秒）",
+		de = "Verzögerung des Menüs von Sir Melk (ms)",
+		fr = "Délai du menu de Sire Melk (ms)",
+		ja = "サー・メルクのメニュー遅延（ミリ秒）",
+		ko = "사이어 멜크 메뉴 지연 (밀리초)",
+		it = "Ritardo del menu di Sir Melk (ms)",
+		pl = "Opóźnienie menu Sir Melka (ms)",
+		es = "Retraso del menú de Sir Melk (ms)",
+ ["pt-br"] = "Atraso do menu de Sir Melk (ms)",
+	},
+	requisitorium_close_delay_description = {
+		en = "If Sir Melk's menu closes after pressing the hotkey, try increasing this value so that the Contracts menu has time to open before switching to the main menu.",
+		ru = "Если меню Сира Мелка закрывается после нажатия горячей клавиши, попробуйте увеличить это значение, чтобы меню Контрактов успело открыться перед переходом в основное меню.",
+ ["zh-cn"] = "如果按下快捷键后梅尔克大人的菜单关闭，请尝试增加此值，以便合同菜单在切换到主菜单之前有足够时间打开。",
+ ["zh-tw"] = "如果按下快捷鍵後梅爾克大人的選單關閉，請嘗試增加此值，以便合約選單在切換到主選單之前有足夠時間開啟。",
+		de = "Wenn das Menü von Sir Melk nach dem Drücken der Tastenkombination schließt, erhöhen Sie diesen Wert, damit das Vertragsmenü Zeit hat, sich zu öffnen, bevor zum Hauptmenü gewechselt wird.",
+		fr = "Si le menu de Sire Melk se ferme après avoir appuyé sur le raccourci, essayez d'augmenter cette valeur pour que le menu des contrats ait le temps de s'ouvrir avant de passer au menu principal.",
+		ja = "ホットキーを押した後にサー・メルクのメニューが閉じてしまう場合は、この値を増やして、メインメニューに切り替わる前に契約メニューが開く時間を確保してください。",
+		ko = "단축키를 누른 후 사이어 멜크의 메뉴가 닫히면 이 값을 늘려 메인 메뉴로 전환되기 전에 계약 메뉴가 열릴 시간을 확보하세요.",
+		it = "Se il menu di Sir Melk si chiude dopo aver premuto il tasto di scelta rapida, prova ad aumentare questo valore in modo che il menu dei contratti abbia il tempo di aprirsi prima di passare al menu principale.",
+		pl = "Jeśli menu Sir Melka zamyka się po naciśnięciu skrótu klawiszowego, spróbuj zwiększyć tę wartość, aby menu kontraktów miało czas na otwarcie przed przejściem do głównego menu.",
+		es = "Si el menú de Sir Melk se cierra después de pulsar la tecla de acceso rápido, intente aumentar este valor para que el menú de contratos tenga tiempo de abrirse antes de cambiar al menú principal.",
+ ["pt-br"] = "Se o menu de Sir Melk fechar após pressionar a tecla de atalho, tente aumentar este valor para que o menu de contratos tenha tempo de abrir antes de mudar para o menu principal.",
 	},
 }

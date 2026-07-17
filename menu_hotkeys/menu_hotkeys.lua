@@ -115,6 +115,13 @@ local function open_or_close_view(view_name, context_override)
 
 	local state = get_current_state()
 
+	-- Запрещаем в обычных миссиях, кроме соло-плея с разрешением
+	if state == "mission" then
+		if not (is_soloplay_active() and mod:get("enable_in_soloplay")) then
+			return
+		end
+	end
+
 	-- Respect user settings
 	if state == "shooting_range" and not mod:get("enable_in_psykhanium") then
 		return
@@ -328,7 +335,10 @@ mod.activate_requisitorium_view = function(self)
 
 	open_or_close_view("contracts_background_view")
 
-	Promise.delay(0.5):next(function()
+	local delay_setting = mod:get("requisitorium_close_delay") or 900 -- fallback 0.9 сек
+	local delay = delay_setting / 1000
+
+	Promise.delay(delay):next(function()
 		local contracts_view_instance = ui_manager:view_instance("contracts_background_view")
 		if contracts_view_instance and contracts_view_instance.cb_on_close_pressed then
 			contracts_view_instance:cb_on_close_pressed()
@@ -516,16 +526,10 @@ mod:hook(CLASS.HavocPlayView, "_setup_current_havoc_mission_data", function(func
 	safe_setup_current_havoc_mission_data(self)
 end)
 
--- Allow closing Meat Grinder difficulty selection window with ESC
--- mod:hook(CLASS.TrainingGroundsOptionsView, "update", function(func, self, dt, t, input_service)
-	-- func(self, dt, t, input_service)
-	-- if input_service:get("back") then
-		-- local ui_manager = Managers.ui
-		-- if ui_manager and ui_manager:view_active("training_grounds_options_view") then
-			-- ui_manager:close_view("training_grounds_options_view")
-		-- end
-	-- end
--- end)
+-- Quit game immediately
+mod.quit_game = function(self)
+	Application.quit()
+end
 
 -- Preload character data when a profile is selected (so that Mortis, Meat Grinder, Havoc work from main menu/psykhanium)
 mod.on_all_mods_loaded = function()
