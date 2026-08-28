@@ -1,21 +1,8 @@
 -- menu_hotkeys_localization.lua
 local mod = get_mod("menu_hotkeys")
 
-return {
-	mod_name = {
-		en = "Menu Hotkeys",
-		ru = "Горячие клавиши меню",
- ["zh-cn"] = "菜单快捷键",
- ["zh-tw"] = "選單快捷鍵",
-		de = "Menü-Hotkeys",
-		fr = "Raccourcis des menus",
-		ja = "メニューホットキー",
-		ko = "메뉴 단축키",
-		it = "Tasti rapidi dei menu",
-		pl = "Skróty klawiszowe menu",
-		es = "Teclas rápidas de menú",
- ["pt-br"] = "Atalhos do menu",
-	},
+local localizations = {
+	mod_name = {}, -- Mod name (will be filled dynamically at the end)
 	mod_description = {
 		en = "Open various menus from the Hub, Psykhanium and Solo Play with hotkeys.",
 		ru = "Menu Hotkeys - Открывайте различные меню в Хабе, Псайканиуме и соло-игре с помощью горячих клавиш.",
@@ -675,3 +662,80 @@ return {
  ["pt-br"] = "Se o menu de Sir Melk fechar após pressionar a tecla de atalho, tente aumentar este valor para que o menu de contratos tenha tempo de abrir antes de mudar para o menu principal.",
 	},
 }
+
+-- ============================================================
+-- GRADIENT GENERATION FOR MOD NAME
+-- ============================================================
+
+local function generate_gradient(text, colors)
+	if not text or text == "" then return "" end
+	local num_colors = #colors
+	if num_colors < 2 then return text end
+
+	local chars = {}
+	for ch in string.gmatch(text, "([%z\1-\127\194-\244][\128-\191]*)") do
+		if ch ~= " " then
+			table.insert(chars, ch)
+		end
+	end
+	local n = #chars
+	if n == 0 then return text end
+
+	local result = {}
+	local idx = 0
+	local pos = 1
+	while pos <= #text do
+		local ch = string.match(text, "([%z\1-\127\194-\244][\128-\191]*)", pos)
+		if not ch then break end
+		pos = pos + #ch
+
+		if ch == " " then
+			table.insert(result, " ")
+		else
+			local t = idx / (n - 1)
+			local r, g, b
+			if num_colors == 2 then
+				local sr, sg, sb = colors[1][1], colors[1][2], colors[1][3]
+				local er, eg, eb = colors[2][1], colors[2][2], colors[2][3]
+				r = math.floor(sr + (er - sr) * t + 0.5)
+				g = math.floor(sg + (eg - sg) * t + 0.5)
+				b = math.floor(sb + (eb - sb) * t + 0.5)
+			end
+			table.insert(result, string.format("{#color(%d,%d,%d)}%s", r, g, b, ch))
+			idx = idx + 1
+		end
+	end
+	return table.concat(result) .. "{#reset()}"
+end
+
+local gradient_colors = {
+	{192, 255, 26 },	-- beginning
+	{ 26, 255, 26},		-- end
+}
+
+local icon = ""
+local prefix = "{#color(192, 255, 26)}" .. icon .. " " -- icon color
+
+local mod_name_texts = {
+		en = "Menu Hotkeys",
+		ru = "Горячие клавиши меню",
+ ["zh-cn"] = "菜单快捷键",
+ ["zh-tw"] = "選單快捷鍵",
+		de = "Menü-Hotkeys",
+		fr = "Raccourcis des menus",
+		ja = "メニューホットキー",
+		ko = "메뉴 단축키",
+		it = "Tasti rapidi dei menu",
+		pl = "Skróty klawiszowe menu",
+		es = "Teclas rápidas de menú",
+ ["pt-br"] = "Atalhos do menu",
+}
+
+for lang, text in pairs(mod_name_texts) do
+	if text and text ~= "" then
+		local gradient_text = generate_gradient(text, gradient_colors)
+		localizations.mod_name[lang] = prefix .. gradient_text
+	end
+end
+
+return localizations

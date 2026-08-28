@@ -90,6 +90,25 @@ end)
 -- Flags for Meat Grinder
 local _meatgrinder_from_main_menu = false
 
+local function is_game_ready_for_hotkeys()
+	local ui_manager = Managers.ui
+	if not ui_manager then return false end
+
+	local current_state = ui_manager:get_current_state_name()
+	-- Disable processing on the title screen and splash screen
+	if current_state == "StateTitle" or current_state == "StateSplash" then
+		return false
+	end
+
+	-- Also check that the local player exists (not at the login stage)
+	local player = Managers.player and Managers.player:local_player(1)
+	if not player then
+		return false
+	end
+
+	return true
+end
+
 -- ################## Core open/close logic #############################
 
 local function can_activate_view(ui_manager, view)
@@ -110,12 +129,15 @@ end
 -- Works everywhere (main menu, psykhanium, hub, solo play).
 -- In the main menu, validation is bypassed to allow opening all views.
 local function open_or_close_view(view_name, context_override)
+	if not is_game_ready_for_hotkeys() then
+		return
+	end
 	local ui_manager = Managers.ui
 	if not ui_manager then return end
 
 	local state = get_current_state()
 
-	-- Запрещаем в обычных миссиях, кроме соло-плея с разрешением
+	-- Prohibited in normal missions, except for solo play with permission
 	if state == "mission" then
 		if not (is_soloplay_active() and mod:get("enable_in_soloplay")) then
 			return
@@ -335,7 +357,7 @@ mod.activate_requisitorium_view = function(self)
 
 	open_or_close_view("contracts_background_view")
 
-	local delay_setting = mod:get("requisitorium_close_delay") or 900 -- fallback 0.9 сек
+	local delay_setting = mod:get("requisitorium_close_delay") or 900 -- fallback 0.9 sec
 	local delay = delay_setting / 1000
 
 	Promise.delay(delay):next(function()
@@ -418,15 +440,8 @@ mod:hook(CLASS.PresenceEntryMyself, "activity_id", function(func, self)
 	return activity_id
 end)
 
--- Minimal patch for HavocPlayView._setup_current_havoc_mission_data:
--- The original method may crash if player_unit is nil (e.g., in main menu).
--- We call the original and then fix the _user_stat_id if it wasn't set properly.
--- However, the original will crash if _player() returns nil or player_unit is nil.
--- To be safe, we override the method entirely with a safe version.
--- This is a copy of the original with a safety check for stat_id.
+-- Minimal patch for HavocPlayView
 local function safe_setup_current_havoc_mission_data(self)
-	-- We need to replicate the original logic to avoid crashes.
-	-- This is the same as before, kept for stability.
 	local current_havoc_order = self._parent.havoc_order
 	local widgets_by_name = self._widgets_by_name
 	local definitions = self._definitions
@@ -528,6 +543,9 @@ end)
 
 -- Quit game immediately
 mod.quit_game = function(self)
+	if not is_game_ready_for_hotkeys() then
+		return
+	end
 	Application.quit()
 end
 

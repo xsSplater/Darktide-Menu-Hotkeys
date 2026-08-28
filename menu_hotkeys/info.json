@@ -1,0 +1,68 @@
+{
+	"name": "Menu Hotkeys",
+	"description": "Open various menus from the Hub, Psykhanium and Solo Play with hotkeys.",
+	"version": "2.1.0",
+	"author": "xsSplater (original by dalokraff and community)",
+	"homepage": "https://www.nexusmods.com/warhammer40kdarktide/mods/969",
+	"source": "https://github.com/xsSplater/Darktide-Menu-Hotkeys",
+	"funding": {
+		"boosty": "https://boosty.to/xssplater",
+		"donationalerts": "https://www.donationalerts.com/r/xssplater"
+	},
+	"nexusId": 969,
+	"dependencies": {
+		"required": [],
+		"self_after": [],
+		"self_before": []
+	},
+	"localization": {
+		"de": {
+			"name": "Menü-Hotkeys",
+			"description": "Mit Genehmigung von Genosse dalokraff veröffentliche ich eine neue Version von Hub Hotkeys - Menu Hotkeys. Öffnen Sie verschiedene Menüs im Hub, Psykhanium und Solo-Spiel mit Hotkeys."
+		},
+		"en": {
+			"name": "Menu Hotkeys",
+			"description": "With permission from comrade dalokraff, I'm posting a new version of Hub Hotkeys - Menu Hotkeys. Open various menus from the Hub, Psykhanium and Solo Play with hotkeys."
+		},
+		"es": {
+			"name": "Teclas de acceso rápido del menú",
+			"description": "Con permiso del camarada dalokraff, publico una nueva versión de Hub Hotkeys - Menu Hotkeys. Abra varios menús desde el Centro, el Psykhanium y el modo Solitario con teclas rápidas."
+		},
+		"fr": {
+			"name": "Raccourcis de menu",
+			"description": "Avec la permission du camarade dalokraff, je publie une nouvelle version de Hub Hotkeys - Menu Hotkeys. Ouvrez divers menus depuis le Hub, le Psykhanium et le jeu solo avec des raccourcis."
+		},
+		"it": {
+			"name": "Tasti di scelta rapida del menu",
+			"description": "Con il permesso del compagno dalokraff, pubblico una nuova versione di Hub Hotkeys - Menu Hotkeys. Apri vari menu dall'Hub, dal Psykhanium e dal Solo Play con tasti di scelta rapida."
+		},
+		"ja": {
+			"name": "メニューホットキー",
+			"description": "同志dalokraffの許可を得て、Hub Hotkeys - Menu Hotkeysの新バージョンを公開します。ホットキーでハブ、プシカニウム、ソロプレイの各種メニューを開きます。"
+		},
+		"ko": {
+			"name": "메뉴 단축키",
+			"description": "동지 dalokraff의 허가를 받아 Hub Hotkeys - Menu Hotkeys의 새 버전을 게시합니다. 단축키로 허브, 프시카니움, 솔로 플레이의 다양한 메뉴를 엽니다."
+		},
+		"pl": {
+			"name": "Skróty menu",
+			"description": "Za zgodą towarzysza dalokraff publikuję nową wersję Hub Hotkeys - Menu Hotkeys. Otwieraj różne menu w Hubie, Psykanium i trybie Solo za pomocą skrótów klawiszowych."
+		},
+		"pt-br": {
+			"name": "Teclas de atalho do menu",
+			"description": "Com a permissão do camarada dalokraff, estou publicando uma nova versão do Hub Hotkeys - Menu Hotkeys. Abra vários menus do Hub, do Psykhanium e do Solo Play com teclas de atalho."
+		},
+		"ru": {
+			"name": "Горячие клавиши меню",
+			"description": "Menu Hotkeys - С разрешения товарища dalokraff я выкладываю новую версию Hub Hotkeys - Menu Hotkeys. Открывайте различные меню в Хабе, Псайканиуме и соло-игре с помощью горячих клавиш."
+		},
+		"zh-cn": {
+			"name": "菜单快捷键",
+			"description": "经同志dalokraff许可，我发布了Hub Hotkeys - Menu Hotkeys的新版本。通过快捷键打开哀星号、灵能室和单人游戏中的各种菜单。"
+		},
+		"zh-tw": {
+			"name": "菜單快捷鍵",
+			"description": "經同志dalokraff許可，我發布了Hub Hotkeys - Menu Hotkeys的新版本。透過快捷鍵打開哀星號、靈能室和單人遊戲中的各種選單。"
+		}
+	}
+}
