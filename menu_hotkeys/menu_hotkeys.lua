@@ -1,4 +1,5 @@
 -- menu_hotkeys.lua
+
 local mod = get_mod("menu_hotkeys")
 
 local Views = require("scripts/ui/views/views")
@@ -12,17 +13,48 @@ local MissionTypes = require("scripts/settings/mission/mission_types")
 local Zones = require("scripts/settings/zones/zones")
 local CircumstanceTemplates = require("scripts/settings/circumstance/circumstance_templates")
 local ColorUtilities = require("scripts/utilities/ui/colors")
-local Colors = require("scripts/utilities/ui/colors")
 local UISoundEvents = require("scripts/settings/ui/ui_sound_events")
+
+-- ============================================================================
+-- Cached globals and hoisted constants
+-- ============================================================================
+
+local table_insert = table.insert
+local pcall		   = pcall
+
+local COOP_MISSIONS = {
+	coop_complete_objective = true,
+	survival				= true,
+	expedition				= true,
+}
+
+local DEFAULT_CHALLENGE_LEVEL = 5
+
+-- Reuse a single resolved promise instead of allocating new ones.
+local RESOLVED_PROMISE = Promise.resolved()
+
+-- Lazy cache for the SoloPlay mod reference (avoids repeated get_mod()).
+local _soloplay_mod		  = nil
+local _soloplay_resolved  = false
+
+local function get_soloplay_mod()
+	if not _soloplay_resolved then
+		_soloplay_mod	   = get_mod("SoloPlay")
+		_soloplay_resolved = true
+	end
+	return _soloplay_mod
+end
 
 -- ################## Helper functions #############################
 
 local function get_current_state()
 	local ui_manager = Managers.ui
-	if not ui_manager then return "unknown" end
+	if not ui_manager then
+		return "unknown"
+	end
 
 	local current_state_name = ui_manager:get_current_state_name()
-	if current_state_name and current_state_name == "StateMainMenu" then
+	if current_state_name == "StateMainMenu" then
 		return "main_menu"
 	elseif ui_manager:view_active("lobby_view") then
 		return "lobby"
@@ -30,21 +62,17 @@ local function get_current_state()
 
 	local game_mode_manager = Managers.state and Managers.state.game_mode
 	local gamemode_name = game_mode_manager and game_mode_manager:game_mode_name() or "unknown"
-	local COOP_MISSIONS = {
-		coop_complete_objective = true,
-		survival = true,
-		expedition = true,
-	}
+
 	if COOP_MISSIONS[gamemode_name] then
-		gamemode_name = "mission"
+		return "mission"
 	elseif gamemode_name == "training_grounds" then
-		gamemode_name = "shooting_range"
+		return "shooting_range"
 	end
 	return gamemode_name
 end
 
 local function is_soloplay_active()
-	local soloplay_mod = get_mod("SoloPlay")
+	local soloplay_mod = get_soloplay_mod()
 	if soloplay_mod and soloplay_mod.is_soloplay then
 		return soloplay_mod:is_soloplay()
 	end
@@ -54,21 +82,25 @@ end
 local function _get_challenge_level()
 	local save_data = Managers.save and Managers.save:account_data()
 	local mission_board_data = save_data and save_data.mission_board
-	return (mission_board_data and mission_board_data.quickplay_difficulty) or 3
+	return (mission_board_data and mission_board_data.quickplay_difficulty) or DEFAULT_CHALLENGE_LEVEL
 end
 
--- Fix for Havoc Party Finder button (opens Group Finder without closing Havoc view)
+-- Fix for the Havoc Party Finder button: opens the Group Finder without closing
+-- the Havoc view. The delay is configurable via the Requisitorium-style setting.
 local function _open_group_finder_from_havoc()
 	local ui_manager = Managers.ui
-	if not ui_manager then return end
+	if not ui_manager then
+		return
+	end
 
 	if ui_manager:view_active("havoc_background_view") then
 		local context = {
-			can_exit = true,
-			parent_view = "havoc_background_view",
+			can_exit		   = true,
+			parent_view		   = "havoc_background_view",
 			allow_close_parent = false,
 		}
-		Promise.delay(0.5):next(function()
+		local delay_ms = mod:get("group_finder_open_delay") or 500
+		Promise.delay(delay_ms / 1000):next(function ()
 			if ui_manager and ui_manager:view_active("havoc_background_view") then
 				ui_manager:open_view("group_finder_view", nil, nil, nil, nil, context)
 			end
@@ -78,8 +110,9 @@ local function _open_group_finder_from_havoc()
 	end
 end
 
--- Hook on HavocPlayView to override the Party Finder callback
-mod:hook_safe(CLASS.HavocPlayView, "_cb_on_party_finder_pressed", function(self)
+-- NOTE: `mod:hook` passes the original function as the first argument, hence
+-- the (func, self, ...) signature.
+mod:hook(CLASS.HavocPlayView, "_cb_on_party_finder_pressed", function (func, self)
 	if self._widgets_by_name.party_finder_button.content.hotspot.disabled then
 		return
 	end
@@ -87,20 +120,22 @@ mod:hook_safe(CLASS.HavocPlayView, "_cb_on_party_finder_pressed", function(self)
 	_open_group_finder_from_havoc()
 end)
 
--- Flags for Meat Grinder
+-- Flag for "launch Meat Grinder directly from the main menu".
 local _meatgrinder_from_main_menu = false
 
 local function is_game_ready_for_hotkeys()
 	local ui_manager = Managers.ui
-	if not ui_manager then return false end
+	if not ui_manager then
+		return false
+	end
 
+	-- Ignore input on the title and splash screens.
 	local current_state = ui_manager:get_current_state_name()
-	-- Disable processing on the title screen and splash screen
 	if current_state == "StateTitle" or current_state == "StateSplash" then
 		return false
 	end
 
-	-- Also check that the local player exists (not at the login stage)
+	-- The local player must exist (we are past the login stage).
 	local player = Managers.player and Managers.player:local_player(1)
 	if not player then
 		return false
@@ -133,39 +168,44 @@ local function open_or_close_view(view_name, context_override)
 		return
 	end
 	local ui_manager = Managers.ui
-	if not ui_manager then return end
+	if not ui_manager then
+		return
+	end
 
 	local state = get_current_state()
 
-	-- Prohibited in normal missions, except for solo play with permission
+	local soloplay_active  = is_soloplay_active()
+	local soloplay_enabled = mod:get("enable_in_soloplay")
+
+	-- Prohibited in normal missions, except for solo play with permission.
 	if state == "mission" then
-		if not (is_soloplay_active() and mod:get("enable_in_soloplay")) then
+		if not (soloplay_active and soloplay_enabled) then
 			return
 		end
 	end
 
-	-- Respect user settings
+	-- Respect user settings.
 	if state == "shooting_range" and not mod:get("enable_in_psykhanium") then
 		return
 	end
-	if is_soloplay_active() and not mod:get("enable_in_soloplay") then
+	if soloplay_active and not soloplay_enabled then
 		return
 	end
 
-	-- Toggle: if view is active and closing is enabled, close it
+	-- Toggle: if the view is active and closing is enabled, close it.
 	if mod:get("close_menu_with_hotkey") and ui_manager:view_active(view_name) then
 		ui_manager:close_view(view_name)
 		return
 	end
 
-	-- For main menu, bypass validation
+	-- For the main menu, bypass validation.
 	if state == "main_menu" then
 		local context = context_override or { hub_interaction = true }
 		ui_manager:open_view(view_name, nil, nil, nil, nil, context)
 		return
 	end
 
-	-- Otherwise use normal validation check
+	-- Otherwise use the normal validation check.
 	if can_activate_view(ui_manager, view_name) then
 		local context = context_override or { hub_interaction = true }
 		ui_manager:open_view(view_name, nil, nil, nil, nil, context)
@@ -175,60 +215,74 @@ end
 -- ################## Data loading utilities #############################
 
 local function safe_promise(p)
-	return (p and p.next) and p or Promise.resolved()
+	if p and p.next then
+		return p
+	end
+	return RESOLVED_PROMISE
 end
 
-local _loading_promise = nil
-local _pending_callbacks = {}
+local _loading_promise	  = nil
+local _pending_callbacks  = {}
 
 local function _load_character_data(profile)
 	if not profile or not profile.character_id then
-		return Promise.resolved()
+		return RESOLVED_PROMISE
 	end
 
-	local player = Managers.player:local_player(1)
+	local player = Managers.player and Managers.player:local_player(1)
 	if not player then
-		return Promise.resolved()
+		return RESOLVED_PROMISE
 	end
 
-	local account_id = player:account_id()
+	local account_id   = player:account_id()
 	local character_id = profile.character_id
-	local mission_board_service = Managers.data_service.mission_board
-	local promises = {}
+	local data_service = Managers.data_service
+	local promises	   = {}
 
 	-- Narrative
-	table.insert(promises, safe_promise(Managers.narrative:load_character_narrative(character_id)))
+	table_insert(promises, safe_promise(Managers.narrative:load_character_narrative(character_id)))
 
 	-- Mission Board: player journey data
-	table.insert(promises, safe_promise(mission_board_service:fetch_player_journey_data(account_id, character_id, false)))
-
-	-- Campaign skip data
-	table.insert(promises, safe_promise(mission_board_service:fetch_character_campaign_skip_data(account_id, character_id)))
+	local mission_board_service = data_service and data_service.mission_board
+	if mission_board_service then
+		table_insert(promises, safe_promise(
+			mission_board_service:fetch_player_journey_data(account_id, character_id, false)))
+		table_insert(promises, safe_promise(
+			mission_board_service:fetch_character_campaign_skip_data(account_id, character_id)))
+	else
+		table_insert(promises, RESOLVED_PROMISE)
+		table_insert(promises, RESOLVED_PROMISE)
+	end
 
 	-- Havoc data
-	local havoc_service = Managers.data_service.havoc
+	local havoc_service = data_service and data_service.havoc
 	if havoc_service then
-		local havoc_promises = {
-			havoc_service:refresh_havoc_status(),
-			havoc_service:refresh_havoc_rank(),
-			havoc_service:refresh_ever_received_havoc_order(),
-			havoc_service:refresh_havoc_unlock_status(),
-			havoc_service:refresh_havoc_cadence_status(),
-		}
-		for _, p in ipairs(havoc_promises) do
-			table.insert(promises, safe_promise(p))
-		end
+		table_insert(promises, safe_promise(havoc_service:refresh_havoc_status()))
+		table_insert(promises, safe_promise(havoc_service:refresh_havoc_rank()))
+		table_insert(promises, safe_promise(havoc_service:refresh_ever_received_havoc_order()))
+		table_insert(promises, safe_promise(havoc_service:refresh_havoc_unlock_status()))
+		table_insert(promises, safe_promise(havoc_service:refresh_havoc_cadence_status()))
 	else
 		for _ = 1, 5 do
-			table.insert(promises, Promise.resolved())
+			table_insert(promises, RESOLVED_PROMISE)
 		end
 	end
 
-	-- Contracts
-	table.insert(promises, safe_promise(Managers.data_service.contracts:get_contract(character_id, false)))
+	-- Contracts (guarded against a not-yet-ready service).
+	local contracts_service = data_service and data_service.contracts
+	if contracts_service then
+		table_insert(promises, safe_promise(contracts_service:get_contract(character_id, false)))
+	else
+		table_insert(promises, RESOLVED_PROMISE)
+	end
 
-	-- Expedition data
-	table.insert(promises, safe_promise(Managers.data_service.expedition:fetch_nodes()))
+	-- Expedition data (guarded against a not-yet-ready service).
+	local expedition_service = data_service and data_service.expedition
+	if expedition_service then
+		table_insert(promises, safe_promise(expedition_service:fetch_nodes()))
+	else
+		table_insert(promises, RESOLVED_PROMISE)
+	end
 
 	return Promise.all(unpack(promises))
 end
@@ -240,61 +294,76 @@ local function _ensure_data_loaded(profile, callback)
 	end
 
 	if _loading_promise then
-		table.insert(_pending_callbacks, callback)
+		table_insert(_pending_callbacks, callback)
 		return
 	end
 
 	_loading_promise = _load_character_data(profile)
-		:next(function()
+		:next(function ()
 			_loading_promise = nil
-			local callbacks = _pending_callbacks
-			_pending_callbacks = {}
-			for _, cb in ipairs(callbacks) do
-				cb()
+			local callbacks		   = _pending_callbacks
+			_pending_callbacks	   = {}
+			for i = 1, #callbacks do
+				local cb	   = callbacks[i]
+				local ok, err  = pcall(cb)
+				if not ok then
+					mod:debug("Pending callback error: %s", tostring(err))
+				end
 			end
-			callback()
+			local ok, err = pcall(callback)
+			if not ok then
+				mod:debug("Callback error: %s", tostring(err))
+			end
 		end)
-		:catch(function(err)
+		:catch(function (err)
 			_loading_promise = nil
-			local callbacks = _pending_callbacks
-			_pending_callbacks = {}
+			local callbacks		   = _pending_callbacks
+			_pending_callbacks	   = {}
 			mod:debug("Failed to load character data: %s", tostring(err))
-			for _, cb in ipairs(callbacks) do
-				cb()
+			for i = 1, #callbacks do
+				local cb	  = callbacks[i]
+				local ok, e	 = pcall(cb)
+				if not ok then
+					mod:debug("Pending callback error after failure: %s", tostring(e))
+				end
 			end
-			callback()
+			local ok, e = pcall(callback)
+			if not ok then
+				mod:debug("Callback error after failure: %s", tostring(e))
+			end
 		end)
 end
 
 -- ################## Hotkey functions #############################
 
 local view_function_map = {
-	barber_vendor_background_view		= "activate_barber_vendor_background_view",
-	contracts_background_view			= "activate_contracts_background_view",
-	crafting_view						= "activate_crafting_view",
-	credits_vendor_background_view		= "activate_credits_vendor_background_view",
-	mission_board_view					= "activate_mission_board_view",
-	store_view							= "activate_store_view",
-	social_menu_view					= "activate_social_view",
-	cosmetics_vendor_background_view	= "activate_commissary_view",
-	penance_overview_view				= "activate_penance_overview_view",
-	havoc_background_view				= "activate_havoc_view",
-	expedition_view						= "activate_expedition_view",
-	inventory_background_view			= "activate_inventory_view",
+	barber_vendor_background_view	 = "activate_barber_vendor_background_view",
+	crafting_view					 = "activate_crafting_view",
+	credits_vendor_background_view	 = "activate_credits_vendor_background_view",
+	mission_board_view				 = "activate_mission_board_view",
+	store_view						 = "activate_store_view",
+	social_menu_view				 = "activate_social_view",
+	cosmetics_vendor_background_view = "activate_commissary_view",
+	penance_overview_view			 = "activate_penance_overview_view",
+	havoc_background_view			 = "activate_havoc_view",
+	expedition_view					 = "activate_expedition_view",
+	inventory_background_view		 = "activate_inventory_view",
 }
 
 for view_name, func_name in pairs(view_function_map) do
-	mod[func_name] = function(self)
+	mod[func_name] = function (self)
 		open_or_close_view(view_name)
 	end
 end
 
--- Shared logic for training grounds (Mortis Trials / Meat Grinder)
+-- Shared logic for training grounds (Mortis Trials / Meat Grinder).
 local function open_training_grounds_with_button(button_name, direct_launch_from_main_menu)
 	local ui_manager = Managers.ui
-	if not ui_manager then return end
+	if not ui_manager then
+		return
+	end
 
-	-- Toggle: close options and/or background
+	-- Toggle: close the options and/or background view.
 	if ui_manager:view_active("training_grounds_options_view") then
 		ui_manager:close_view("training_grounds_options_view")
 		if ui_manager:view_active("training_grounds_view") then
@@ -307,25 +376,28 @@ local function open_training_grounds_with_button(button_name, direct_launch_from
 		return
 	end
 
-	-- Direct launch from main menu (only for Meat Grinder)
+	-- Direct launch from the main menu (only for Meat Grinder).
 	if direct_launch_from_main_menu and get_current_state() == "main_menu" then
 		_meatgrinder_from_main_menu = true
 		return
 	end
 
-	local player = Managers.player:local_player(1)
+	local player  = Managers.player and Managers.player:local_player(1)
 	local profile = player and player:profile()
 
-	local open_callback = function()
+	local open_callback = function ()
 		open_or_close_view("training_grounds_view", { hub_interaction = true })
-		Promise.delay(0.5):next(function()
+		Promise.delay(0.5):next(function ()
 			if not ui_manager or not ui_manager:view_active("training_grounds_view") then
 				return
 			end
 			local view_instance = ui_manager:view_instance("training_grounds_view")
-			if not view_instance then return end
+			if not view_instance then
+				return
+			end
 
-			local button_widget = view_instance._widgets_by_name and view_instance._widgets_by_name[button_name]
+			local button_widget = view_instance._widgets_by_name and
+				view_instance._widgets_by_name[button_name]
 			if button_widget and button_widget.content and button_widget.content.hotspot then
 				local hotspot = button_widget.content.hotspot
 				if hotspot.pressed_callback then
@@ -342,56 +414,93 @@ local function open_training_grounds_with_button(button_name, direct_launch_from
 	end
 end
 
-mod.activate_training_grounds_view = function(self)
+mod.activate_training_grounds_view = function (self)
 	open_training_grounds_with_button("option_button_1", false)
 end
 
-mod.activate_meatgrinder_view = function(self)
+mod.activate_meatgrinder_view = function (self)
 	open_training_grounds_with_button("option_button_4", true)
 end
 
--- Sire Melk's Requisitorium – opens root menu and closes child Contracts view
-mod.activate_requisitorium_view = function(self)
-	local ui_manager = Managers.ui
-	if not ui_manager then return end
+-- Sire Melk's Requisitorium / Contracts
+local CONTRACTS_OPTION_BUTTON = "option_button_1"
 
+-- Sire Melk's Requisitorium - just opens the Melk root view.
+mod.activate_requisitorium_view = function (self)
+	open_or_close_view("contracts_background_view")
+end
+
+-- Contracts - opens the Melk root view and presses its first option button, which navigates into the Contracts submenu.
+mod.activate_contracts_view = function (self)
+	local ui_manager = Managers.ui
+	if not ui_manager then
+		return
+	end
+
+	-- Toggle: pressing the hotkey while the Melk view is open closes it, matching the behaviour of every other menu hotkey.
+	if mod:get("close_menu_with_hotkey") and ui_manager:view_active("contracts_background_view") then
+		ui_manager:close_view("contracts_background_view")
+		return
+	end
+
+	-- Open the Melk root view first.
 	open_or_close_view("contracts_background_view")
 
-	local delay_setting = mod:get("requisitorium_close_delay") or 900 -- fallback 0.9 sec
-	local delay = delay_setting / 1000
+	local delay_setting = mod:get("contracts_open_delay") or 900
+	local delay			= delay_setting / 1000
 
-	Promise.delay(delay):next(function()
-		local contracts_view_instance = ui_manager:view_instance("contracts_background_view")
-		if contracts_view_instance and contracts_view_instance.cb_on_close_pressed then
-			contracts_view_instance:cb_on_close_pressed()
+	Promise.delay(delay):next(function ()
+		if not ui_manager:view_active("contracts_background_view") then
+			return
+		end
+
+		local view_instance = ui_manager:view_instance("contracts_background_view")
+		if not view_instance then
+			return
+		end
+
+		local widget = view_instance._widgets_by_name and
+			view_instance._widgets_by_name[CONTRACTS_OPTION_BUTTON]
+		if not widget then
+			mod:debug(
+				"Contracts option button '%s' not found in contracts_background_view",
+				CONTRACTS_OPTION_BUTTON)
+			return
+		end
+
+		local hotspot = widget.content and widget.content.hotspot
+		if hotspot and hotspot.pressed_callback then
+			hotspot.pressed_callback()
 		end
 	end)
 end
 
--- Havoc Mode – opens havoc_background_view (available everywhere)
-mod.activate_havoc_view = function(self)
+-- Havoc Mode - opens havoc_background_view (available everywhere).
+mod.activate_havoc_view = function (self)
 	local ui_manager = Managers.ui
-	if not ui_manager then return end
+	if not ui_manager then
+		return
+	end
 
 	if mod:get("close_menu_with_hotkey") and ui_manager:view_active("havoc_background_view") then
 		ui_manager:close_view("havoc_background_view")
 		return
 	end
 
-	local player = Managers.player:local_player(1)
+	local player  = Managers.player and Managers.player:local_player(1)
 	local profile = player and player:profile()
 
-	-- Preload Group Finder data in background (no blocking)
-	local social_service = Managers.data_service.social
-	local region_service = Managers.data_service.region_latency
+	-- Preload Group Finder data in the background (non-blocking).
+	local social_service = Managers.data_service and Managers.data_service.social
+	local region_service = Managers.data_service and Managers.data_service.region_latency
 	if social_service then
-		social_service:get_group_finder_tags():catch(function() return {} end)
+		social_service:get_group_finder_tags():catch(function () return {} end)
 	end
 	if region_service then
-		region_service:fetch_regions_latency():catch(function() return {} end)
+		region_service:fetch_regions_latency():catch(function () return {} end)
 	end
 
-	local open_callback = function()
+	local open_callback = function ()
 		open_or_close_view("havoc_background_view", { hub_interaction = true })
 	end
 
@@ -404,15 +513,15 @@ end
 
 -- ################## Hooks #############################
 
--- Launch Meat Grinder directly from main menu
-mod:hook(CLASS.StateMainMenu, "update", function(func, self, main_dt, main_t)
+-- Launch Meat Grinder directly from the main menu.
+mod:hook(CLASS.StateMainMenu, "update", function (func, self, main_dt, main_t)
 	if _meatgrinder_from_main_menu then
 		_meatgrinder_from_main_menu = false
 		local challenge_level = _get_challenge_level()
 		local mechanism_context = {
-			mission_name = "tg_shooting_range",
+			mission_name	= "tg_shooting_range",
 			singleplay_type = SINGLEPLAY_TYPES.training_grounds,
-			challenge_level = challenge_level
+			challenge_level = challenge_level,
 		}
 		mod:debug("Going to Meat Grinder from main menu with difficulty level [%s]", challenge_level)
 
@@ -430,10 +539,10 @@ mod:hook(CLASS.StateMainMenu, "update", function(func, self, main_dt, main_t)
 	return func(self, main_dt, main_t)
 end)
 
--- Force "hub" presence when in main menu or shooting range – always get current state
-mod:hook(CLASS.PresenceEntryMyself, "activity_id", function(func, self)
+-- Force the "hub" presence when in the main menu or the shooting range.
+mod:hook(CLASS.PresenceEntryMyself, "activity_id", function (func, self)
 	local activity_id = func(self)
-	local state = get_current_state()
+	local state		  = get_current_state()
 	if state == "shooting_range" or state == "main_menu" then
 		activity_id = "hub"
 	end
@@ -443,14 +552,15 @@ end)
 -- Minimal patch for HavocPlayView
 local function safe_setup_current_havoc_mission_data(self)
 	local current_havoc_order = self._parent.havoc_order
-	local widgets_by_name = self._widgets_by_name
-	local definitions = self._definitions
+	local widgets_by_name	  = self._widgets_by_name
+	local definitions		  = self._definitions
 	local rank_badge_definitions = definitions.badge_definitions
-	local rank_badge_size = rank_badge_definitions.size
-	local rank_badge_passes = rank_badge_definitions.pass_template_function(self, {
+	local rank_badge_size		 = rank_badge_definitions.size
+	local rank_badge_passes		 = rank_badge_definitions.pass_template_function(self, {
 		rank = current_havoc_order.data.rank,
 	})
-	local rank_badge_widget_definition = UIWidget.create_definition(rank_badge_passes, "current_rank", nil, rank_badge_size)
+	local rank_badge_widget_definition = UIWidget.create_definition(
+		rank_badge_passes, "current_rank", nil, rank_badge_size)
 	local widget = UIWidget.init("rank_badge", rank_badge_widget_definition)
 
 	self._widgets_by_name.rank_badge = widget
@@ -469,15 +579,15 @@ local function safe_setup_current_havoc_mission_data(self)
 		end
 	end
 
-	-- SAFETY: compute stat_id with fallback
-	local _player = self:_player()
+	-- SAFETY: compute stat_id with a fallback when no player unit exists yet.
+	local _player	 = self:_player()
 	local player_unit = _player and _player.player_unit
 	local stat_id
 	if player_unit then
 		local player_owner = Managers.state.player_unit_spawn:owner(player_unit)
 		stat_id = player_owner.remote and player_owner.stat_id or player_owner:local_player_id()
 	else
-		stat_id = 1 -- fallback for main menu
+		stat_id = 1 -- Fallback for the main menu.
 	end
 	self._user_stat_id = stat_id
 
@@ -500,34 +610,34 @@ local function safe_setup_current_havoc_mission_data(self)
 		end
 	end
 
-	local map = mission.id
+	local map			   = mission.id
 	local mission_template = MissionTemplates[map]
-	local widget = widgets_by_name.detail
-	widget.visible = true
+	local widget_detail	   = widgets_by_name.detail
+	widget_detail.visible  = true
 
-	local content = widget.content
-	local mission_type = MissionTypes[mission_template.mission_type or "undefined"]
-	content.header_icon = mission_type.icon
-	content.header_subtitle = Localize(Zones[mission_template.zone_id].name)
-	content.header_title = Localize(mission_template.mission_name)
+	local content			 = widget_detail.content
+	local mission_type		 = MissionTypes[mission_template.mission_type or "undefined"]
+	content.header_icon		 = mission_type.icon
+	content.header_subtitle	 = Localize(Zones[mission_template.zone_id].name)
+	content.header_title	 = Localize(mission_template.mission_name)
 
-	local location_image_material_values = widget.style.location_image.material_values
+	local location_image_material_values = widget_detail.style.location_image.material_values
 	location_image_material_values.texture_map = mission_template.texture_big
 	location_image_material_values.show_static = 0
 
-	local objective_widget = widgets_by_name.objective
-	objective_widget.content.header_icon = mission_type.icon
-	objective_widget.content.header_title = Localize("loc_misison_board_main_objective_title")
+	local objective_widget					= widgets_by_name.objective
+	objective_widget.content.header_icon	= mission_type.icon
+	objective_widget.content.header_title	= Localize("loc_misison_board_main_objective_title")
 	objective_widget.content.header_subtitle = Localize(mission_type.name)
-	objective_widget.content.body_text = Localize(mission_template.mission_description)
+	objective_widget.content.body_text		= Localize(mission_template.mission_description)
 
 	local havoc_mission_flag_data = self:_extract_havoc_flags_data()
-	local circumstances = havoc_mission_flag_data.circumstances
+	local circumstances			  = havoc_mission_flag_data.circumstances
 	if circumstances then
 		local mission_circumstances_presentation_data = {}
 		for key, _ in pairs(circumstances) do
 			local circumstance_presentation_data = CircumstanceTemplates[key]
-			mission_circumstances_presentation_data[#mission_circumstances_presentation_data + 1] = circumstance_presentation_data.ui
+			table_insert(mission_circumstances_presentation_data, circumstance_presentation_data.ui)
 		end
 		self:_setup_mission_detail_grid(mission_circumstances_presentation_data)
 	end
@@ -537,29 +647,55 @@ local function safe_setup_current_havoc_mission_data(self)
 	self.can_start_mission = true
 end
 
-mod:hook(CLASS.HavocPlayView, "_setup_current_havoc_mission_data", function(func, self, ...)
-	safe_setup_current_havoc_mission_data(self)
+mod:hook(CLASS.HavocPlayView, "_setup_current_havoc_mission_data", function (func, self, ...)
+	local ok, err = pcall(safe_setup_current_havoc_mission_data, self)
+	if not ok then
+		mod:debug("safe_setup_current_havoc_mission_data failed: %s", tostring(err))
+	end
 end)
 
--- Quit game immediately
-mod.quit_game = function(self)
+-- Quit game immediately.
+mod.quit_game = function (self)
 	if not is_game_ready_for_hotkeys() then
 		return
 	end
 	Application.quit()
 end
 
--- Preload character data when a profile is selected (so that Mortis, Meat Grinder, Havoc work from main menu/psykhanium)
-mod.on_all_mods_loaded = function()
-	-- Register event for character selection
-	Managers.event:register("event_main_menu_selected_profile_changed", function(profile)
-		if not profile or not profile.character_id then
-			return
+-- ################## Lifecycle callbacks #############################
+local _profile_changed_event_handle = nil
+
+mod.on_all_mods_loaded = function ()
+	_soloplay_mod	   = get_mod("SoloPlay")
+	_soloplay_resolved = true
+
+	_profile_changed_event_handle = Managers.event:register(
+		"event_main_menu_selected_profile_changed",
+		function (profile)
+			if not profile or not profile.character_id then
+				return
+			end
+			_load_character_data(profile)
+				:next(function ()
+					mod:debug("Character data preloaded for character %s", profile.character_id)
+				end)
+				:catch(function (err)
+					mod:debug("Failed to preload character data: %s", tostring(err))
+				end)
 		end
-		_load_character_data(profile):next(function()
-			mod:debug("Character data preloaded for character %s", profile.character_id)
-		end):catch(function(err)
-			mod:debug("Failed to preload character data: %s", tostring(err))
-		end)
-	end)
+	)
+end
+
+mod.on_unload = function ()
+	if _profile_changed_event_handle then
+		Managers.event:unregister(_profile_changed_event_handle)
+		_profile_changed_event_handle = nil
+	end
+	_loading_promise   = nil
+	_pending_callbacks = {}
+end
+
+mod.on_settings_reset = function ()
+	_loading_promise   = nil
+	_pending_callbacks = {}
 end
