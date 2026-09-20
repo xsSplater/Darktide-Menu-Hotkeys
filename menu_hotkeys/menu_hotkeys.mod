@@ -9,7 +9,4 @@ return {
 		})
 	end,
 	packages = {},
-	require = {},
-	load_before = {},
-	load_after = {},
 }

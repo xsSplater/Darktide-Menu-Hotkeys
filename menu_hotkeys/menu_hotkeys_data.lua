@@ -1,39 +1,38 @@
 -- menu_hotkeys_data.lua
-
 local mod = get_mod("menu_hotkeys")
 
 return {
-	name			= mod:localize("mod_name"),
-	description		= mod:localize("mod_description"),
-	is_togglable	= false,
+	name		   = mod:localize("mod_name"),
+	description	   = mod:localize("mod_description"),
+	is_togglable   = false,
 	options = {
 		widgets = {
 			{
-				setting_id	= "settings_group",
-				type		= "group",
+				setting_id = "settings_group",
+				type	   = "group",
 				sub_widgets = {
 					{
-						setting_id		= "enable_in_psykhanium",
-						type			= "checkbox",
-						default_value	= true,
+						setting_id	  = "enable_in_psykhanium",
+						type		  = "checkbox",
+						default_value = true,
 					},
 					{
-						setting_id		= "enable_in_soloplay",
-						type			= "checkbox",
-						default_value	= true,
+						setting_id	  = "enable_in_soloplay",
+						type		  = "checkbox",
+						default_value = true,
 					},
 					{
-						setting_id		= "close_menu_with_hotkey",
-						type			= "checkbox",
-						default_value	= true,
+						setting_id	  = "close_menu_with_hotkey",
+						type		  = "checkbox",
+						default_value = true,
 					},
 				},
 			},
 			{
-				setting_id	= "hotkeys_group",
-				type		= "group",
+				setting_id = "hotkeys_group",
+				type	   = "group",
 				sub_widgets = {
-				-- Inventory
+					-- Inventory
 					{
 						setting_id		= "open_inventory_view_key",
 						type			= "keybind",
@@ -42,7 +41,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_inventory_view",
 					},
-				-- Barber
+					-- Barber
 					{
 						setting_id		= "open_barber_view_key",
 						type			= "keybind",
@@ -51,7 +50,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_barber_vendor_background_view",
 					},
-				-- Sire Melk's Requisitorium
+					-- Sire Melk's Requisitorium
 					{
 						setting_id		= "open_requisitorium_view_key",
 						type			= "keybind",
@@ -60,7 +59,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_requisitorium_view",
 					},
-				-- Contracts
+					-- Contracts (opens Melk root and navigates into Contracts)
 					{
 						setting_id		= "open_contracts_view_key",
 						type			= "keybind",
@@ -69,7 +68,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_contracts_view",
 					},
-				-- Crafting
+					-- Crafting
 					{
 						setting_id		= "open_crafting_view_key",
 						type			= "keybind",
@@ -78,7 +77,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_crafting_view",
 					},
-				-- Armoury Exchange
+					-- Armoury Exchange
 					{
 						setting_id		= "open_credits_vendor_view_key",
 						type			= "keybind",
@@ -87,7 +86,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_credits_vendor_background_view",
 					},
-				-- Mission Board
+					-- Mission Board
 					{
 						setting_id		= "open_mission_board_view_key",
 						type			= "keybind",
@@ -96,7 +95,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_mission_board_view",
 					},
-				-- Mortis Trials
+					-- Mortis Trials
 					{
 						setting_id		= "open_training_grounds_view_key",
 						type			= "keybind",
@@ -105,7 +104,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_training_grounds_view",
 					},
-				-- Meat Grinder
+					-- Meat Grinder
 					{
 						setting_id		= "open_meatgrinder_view_key",
 						type			= "keybind",
@@ -114,7 +113,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_meatgrinder_view",
 					},
-				-- Commissary (Cosmetics)
+					-- Commissary (Cosmetics)
 					{
 						setting_id		= "open_commissary_view_key",
 						type			= "keybind",
@@ -123,7 +122,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_commissary_view",
 					},
-				-- Penance
+					-- Penance
 					{
 						setting_id		= "open_penance_view_key",
 						type			= "keybind",
@@ -132,7 +131,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_penance_overview_view",
 					},
-				-- Premium Store
+					-- Premium Store
 					{
 						setting_id		= "open_premium_store_view_key",
 						type			= "keybind",
@@ -141,7 +140,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_store_view",
 					},
-				-- Social Menu
+					-- Social Menu
 					{
 						setting_id		= "open_social_view_key",
 						type			= "keybind",
@@ -150,7 +149,16 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_social_view",
 					},
-				-- Havoc Mode
+					-- Party Finder (Group Finder)
+					{
+						setting_id		= "open_group_finder_view_key",
+						type			= "keybind",
+						default_value	= {},
+						keybind_trigger = "pressed",
+						keybind_type	= "function_call",
+						function_name	= "activate_group_finder_view",
+					},
+					-- Havoc Mode
 					{
 						setting_id		= "open_havoc_view_key",
 						type			= "keybind",
@@ -159,7 +167,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_havoc_view",
 					},
-				-- Expedition Mode
+					-- Expedition Mode
 					{
 						setting_id		= "open_expedition_view_key",
 						type			= "keybind",
@@ -168,7 +176,7 @@ return {
 						keybind_type	= "function_call",
 						function_name	= "activate_expedition_view",
 					},
-				-- Quit Game
+					-- Quit Game
 					{
 						setting_id		= "quit_game_key",
 						type			= "keybind",
@@ -180,14 +188,14 @@ return {
 				},
 			},
 			{
-				setting_id	= "debug_group",
-				type		= "group",
+				setting_id = "debug_group",
+				type	   = "group",
 				sub_widgets = {
 					-- Delay before pressing the first option inside Melk's root view to navigate into Contracts.
 					{
 						setting_id		= "contracts_open_delay",
 						type			= "numeric",
-						default_value	= 500,
+						default_value	= 900,
 						range			= { 100, 3000 },
 						step_size_value = 100,
 						unit_text		= "unit_ms",

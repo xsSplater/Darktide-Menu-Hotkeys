@@ -1,5 +1,4 @@
 -- menu_hotkeys.lua
-
 local mod = get_mod("menu_hotkeys")
 
 local Views = require("scripts/ui/views/views")
@@ -30,7 +29,6 @@ local COOP_MISSIONS = {
 
 local DEFAULT_CHALLENGE_LEVEL = 5
 
--- Reuse a single resolved promise instead of allocating new ones.
 local RESOLVED_PROMISE = Promise.resolved()
 
 -- Lazy cache for the SoloPlay mod reference (avoids repeated get_mod()).
@@ -85,8 +83,7 @@ local function _get_challenge_level()
 	return (mission_board_data and mission_board_data.quickplay_difficulty) or DEFAULT_CHALLENGE_LEVEL
 end
 
--- Fix for the Havoc Party Finder button: opens the Group Finder without closing
--- the Havoc view. The delay is configurable via the Requisitorium-style setting.
+-- Fix for the Havoc Party Finder button: opens the Group Finder without closing the Havoc view.
 local function _open_group_finder_from_havoc()
 	local ui_manager = Managers.ui
 	if not ui_manager then
@@ -110,8 +107,9 @@ local function _open_group_finder_from_havoc()
 	end
 end
 
--- NOTE: `mod:hook` passes the original function as the first argument, hence
--- the (func, self, ...) signature.
+-- Use `mod:hook` (not `hook_safe`) because we intentionally *replace* the
+-- vanilla Party Finder callback. The original `func` is deliberately not
+-- called, otherwise the Havoc view would still close on vanilla code paths.
 mod:hook(CLASS.HavocPlayView, "_cb_on_party_finder_pressed", function (func, self)
 	if self._widgets_by_name.party_finder_button.content.hotspot.disabled then
 		return
@@ -135,7 +133,7 @@ local function is_game_ready_for_hotkeys()
 		return false
 	end
 
-	-- The local player must exist (we are past the login stage).
+	-- The local player must exist.
 	local player = Managers.player and Managers.player:local_player(1)
 	if not player then
 		return false
@@ -174,6 +172,7 @@ local function open_or_close_view(view_name, context_override)
 
 	local state = get_current_state()
 
+	-- Evaluate the SoloPlay checks only once per invocation.
 	local soloplay_active  = is_soloplay_active()
 	local soloplay_enabled = mod:get("enable_in_soloplay")
 
@@ -303,6 +302,7 @@ local function _ensure_data_loaded(profile, callback)
 			_loading_promise = nil
 			local callbacks		   = _pending_callbacks
 			_pending_callbacks	   = {}
+			-- Wrap each callback in pcall so a single failing callback does not block the rest of the batch.
 			for i = 1, #callbacks do
 				local cb	   = callbacks[i]
 				local ok, err  = pcall(cb)
@@ -338,6 +338,7 @@ end
 
 local view_function_map = {
 	barber_vendor_background_view	 = "activate_barber_vendor_background_view",
+	contracts_background_view		 = "activate_contracts_background_view",
 	crafting_view					 = "activate_crafting_view",
 	credits_vendor_background_view	 = "activate_credits_vendor_background_view",
 	mission_board_view				 = "activate_mission_board_view",
@@ -425,25 +426,21 @@ end
 -- Sire Melk's Requisitorium / Contracts
 local CONTRACTS_OPTION_BUTTON = "option_button_1"
 
--- Sire Melk's Requisitorium - just opens the Melk root view.
 mod.activate_requisitorium_view = function (self)
 	open_or_close_view("contracts_background_view")
 end
 
--- Contracts - opens the Melk root view and presses its first option button, which navigates into the Contracts submenu.
 mod.activate_contracts_view = function (self)
 	local ui_manager = Managers.ui
 	if not ui_manager then
 		return
 	end
 
-	-- Toggle: pressing the hotkey while the Melk view is open closes it, matching the behaviour of every other menu hotkey.
 	if mod:get("close_menu_with_hotkey") and ui_manager:view_active("contracts_background_view") then
 		ui_manager:close_view("contracts_background_view")
 		return
 	end
 
-	-- Open the Melk root view first.
 	open_or_close_view("contracts_background_view")
 
 	local delay_setting = mod:get("contracts_open_delay") or 900
@@ -511,6 +508,37 @@ mod.activate_havoc_view = function (self)
 	end
 end
 
+-- Party Finder (Group Finder) - opens the group finder view directly.
+-- When the Havoc view is open, delegates to the Havoc-aware path so the
+-- parent view is preserved instead of being torn down.
+mod.activate_group_finder_view = function (self)
+	local ui_manager = Managers.ui
+	if not ui_manager then
+		return
+	end
+
+	if mod:get("close_menu_with_hotkey") and ui_manager:view_active("group_finder_view") then
+		ui_manager:close_view("group_finder_view")
+		return
+	end
+
+	if ui_manager:view_active("havoc_background_view") then
+		_open_group_finder_from_havoc()
+		return
+	end
+
+	local social_service = Managers.data_service and Managers.data_service.social
+	local region_service = Managers.data_service and Managers.data_service.region_latency
+	if social_service then
+		social_service:get_group_finder_tags():catch(function () return {} end)
+	end
+	if region_service then
+		region_service:fetch_regions_latency():catch(function () return {} end)
+	end
+
+	open_or_close_view("group_finder_view", { hub_interaction = true })
+end
+
 -- ################## Hooks #############################
 
 -- Launch Meat Grinder directly from the main menu.
@@ -549,7 +577,7 @@ mod:hook(CLASS.PresenceEntryMyself, "activity_id", function (func, self)
 	return activity_id
 end)
 
--- Minimal patch for HavocPlayView
+-- Minimal patch for HavocPlayView.
 local function safe_setup_current_havoc_mission_data(self)
 	local current_havoc_order = self._parent.havoc_order
 	local widgets_by_name	  = self._widgets_by_name
@@ -666,6 +694,7 @@ end
 local _profile_changed_event_handle = nil
 
 mod.on_all_mods_loaded = function ()
+	-- Re-resolve the SoloPlay mod reference now that every mod has been loaded.
 	_soloplay_mod	   = get_mod("SoloPlay")
 	_soloplay_resolved = true
 

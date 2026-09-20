@@ -1,5 +1,4 @@
 -- menu_hotkeys_localization.lua
-
 local mod = get_mod("menu_hotkeys")
 
 local localizations = {
@@ -19,18 +18,20 @@ local localizations = {
 	},
 	mod_description = {
 		en = "Open various menus from the Hub, Psykhanium and Solo Play with hotkeys.",
-		ru = "Menu Hotkeys - С разрешения товарища dalokraff я выкладываю новую версию Hub Hotkeys - Menu Hotkeys. Открывайте различные меню в Хабе, Псайканиуме и соло-игре с помощью горячих клавиш.",
- ["zh-cn"] = "经同志dalokraff许可，我发布了Hub Hotkeys - Menu Hotkeys的新版本。通过快捷键打开哀星号、灵能室和单人游戏中的各种菜单。",
- ["zh-tw"] = "經同志dalokraff許可，我發布了Hub Hotkeys - Menu Hotkeys的新版本。透過快捷鍵打開哀星號、靈能室和單人遊戲中的各種選單。",
-		de = "Mit Genehmigung von Genosse dalokraff veröffentliche ich eine neue Version von Hub Hotkeys - Menu Hotkeys. Öffnen Sie verschiedene Menüs im Hub, Psykhanium und Solo-Spiel mit Hotkeys.",
-		fr = "Avec la permission du camarade dalokraff, je publie une nouvelle version de Hub Hotkeys - Menu Hotkeys. Ouvrez divers menus depuis le Hub, le Psykhanium et le jeu solo avec des raccourcis.",
-		ja = "同志dalokraffの許可を得て、Hub Hotkeys - Menu Hotkeysの新バージョンを公開します。ホットキーでハブ、プシカニウム、ソロプレイの各種メニューを開きます。",
-		ko = "동지 dalokraff의 허가를 받아 Hub Hotkeys - Menu Hotkeys의 새 버전을 게시합니다. 단축키로 허브, 프시카니움, 솔로 플레이의 다양한 메뉴를 엽니다.",
-		it = "Con il permesso del compagno dalokraff, pubblico una nuova versione di Hub Hotkeys - Menu Hotkeys. Apri vari menu dall'Hub, dal Psykhanium e dal Solo Play con tasti di scelta rapida.",
-		pl = "Za zgodą towarzysza dalokraff publikuję nową wersję Hub Hotkeys - Menu Hotkeys. Otwieraj różne menu w Hubie, Psykanium i trybie Solo za pomocą skrótów klawiszowych.",
-		es = "Con permiso del camarada dalokraff, publico una nueva versión de Hub Hotkeys - Menu Hotkeys. Abra varios menús desde el Centro, el Psykhanium y el modo Solitario con teclas rápidas.",
- ["pt-br"] = "Com a permissão do camarada dalokraff, estou publicando uma nova versão do Hub Hotkeys - Menu Hotkeys. Abra vários menus do Hub, do Psykhanium e do Solo Play com teclas de atalho.",
+		ru = "Menu Hotkeys - Открывайте различные меню в Хабе, Псайканиуме и соло-игре с помощью горячих клавиш.",
+ ["zh-cn"] = "通过快捷键打开哀星号、灵能室和单人游戏中的各种菜单。",
+ ["zh-tw"] = "透過快捷鍵打開哀星號、靈能室和單人遊戲中的各種選單。",
+		de = "Öffnen Sie verschiedene Menüs im Hub, Psykhanium und Solo-Spiel mit Hotkeys.",
+		fr = "Ouvrez divers menus depuis le Hub, le Psykhanium et le jeu solo avec des raccourcis.",
+		ja = "ホットキーでハブ、プシカニウム、ソロプレイの各種メニューを開きます。",
+		ko = "단축키로 허브, 프시카니움, 솔로 플레이의 다양한 메뉴를 엽니다.",
+		it = "Apri vari menu dall'Hub, dal Psykhanium e dal Solo Play con tasti di scelta rapida.",
+		pl = "Otwieraj różne menu w Hubie, Psykanium i trybie Solo za pomocą skrótów klawiszowych.",
+		es = "Abra varios menús desde el Centro, el Psykhanium y el modo Solitario con teclas rápidas.",
+ ["pt-br"] = "Abra vários menus do Hub, do Psykhanium e do Solo Play com teclas de atalho.",
 	},
+
+-- Settings
 	settings_group = {
 		en = "Settings",
 		ru = "Настройки",
@@ -116,6 +117,7 @@ local localizations = {
  ["pt-br"] = "Permite fechar os menus com suas respectivas teclas de atalho.",
 	},
 
+-- Hotkeys
 	hotkeys_group = {
 		en = "Hotkeys",
 		ru = "Горячие клавиши",
@@ -131,7 +133,7 @@ local localizations = {
  ["pt-br"] = "Teclas de atalho",
 	},
 
--- Inventory
+	-- Inventory
 	open_inventory_view_key = {
 		en = "Inventory",
 		ru = "Инвентарь",
@@ -161,7 +163,7 @@ local localizations = {
  ["pt-br"] = "Abre a visualização do inventário.",
 	},
 
--- Barber
+	-- Barber
 	open_barber_view_key = {
 		en = "Barber-chirurgeon",
 		ru = "Парикмахер-хирург",
@@ -191,7 +193,7 @@ local localizations = {
  ["pt-br"] = "Abre o menu de alteração da aparência do personagem.",
 	},
 
--- Sire Melk's Requisitorium
+	-- Sire Melk's Requisitorium
 	open_requisitorium_view_key = {
 		en = "Sire Melk's Requisitorium",
 		ru = "Реквизиторий Сира Мелка",
@@ -221,7 +223,7 @@ local localizations = {
  ["pt-br"] = "Abre o menu principal do Requisitório de Sire Melk.",
 	},
 
--- Contracts
+	-- Contracts
 	open_contracts_view_key = {
 		en = "Contracts",
 		ru = "Контракты",
@@ -250,36 +252,8 @@ local localizations = {
 		es = "Abre el menú principal de Melk y accede a los contratos.",
  ["pt-br"] = "Abre o menu principal do Melk e navega até os contratos.",
 	},
-	contracts_open_delay = {
-		en = "Contracts Menu Delay",
-		ru = "Задержка меню Контрактов",
- ["zh-cn"] = "合同菜单延迟",
- ["zh-tw"] = "合約選單延遲",
-		de = "Verzögerung des Vertragsmenüs",
-		fr = "Délai du menu des contrats",
-		ja = "契約メニューの遅延",
-		ko = "계약 메뉴 지연",
-		it = "Ritardo del menu contratti",
-		pl = "Opóźnienie menu kontraktów",
-		es = "Retraso del menú de contratos",
- ["pt-br"] = "Atraso do menu de contratos",
-	},
-	contracts_open_delay_description = {
-		en = "Delay before pressing the first option inside Melk's root menu to enter Contracts. Increase if the navigation does not fire.",
-		ru = "Задержка перед нажатием первой опции в корневом меню Мелка для входа в Контракты. Увеличьте, если переход не срабатывает.",
- ["zh-cn"] = "按下梅尔克大人主菜单中第一个选项进入合同前的延迟。如果导航未触发，请增加此值。",
- ["zh-tw"] = "按下梅爾克大人主選單中第一個選項進入合約前的延遲。如果導覽未觸發，請增加此值。",
-		de = "Verzögerung, bevor die erste Option im Melk-Hauptmenü gedrückt wird. Erhöhen Sie den Wert, wenn die Navigation nicht ausgelöst wird.",
-		fr = "Délai avant d'appuyer sur la première option du menu principal de Melk pour entrer dans les contrats.",
-		ja = "メルクのルートメニューで最初のオプションを押すまでの遅延。遷移しない場合はこの値を増やしてください。",
-		ko = "멜크 루트 메뉴에서 첫 번째 옵션을 누르기 전 지연입니다. 이동이 안 되면 이 값을 늘리세요.",
-		it = "Ritardo prima di premere la prima opzione nel menu principale di Melk per entrare nei contratti.",
-		pl = "Opóźnienie przed naciśnięciem pierwszej opcji w menu głównym Melka, aby wejść do kontraktów.",
-		es = "Retraso antes de pulsar la primera opción en el menú principal de Melk para entrar en los contratos.",
- ["pt-br"] = "Atraso antes de pressionar a primeira opção no menu principal do Melk para entrar nos contratos.",
-	},
 
--- Crafting
+	-- Crafting
 	open_crafting_view_key = {
 		en = "Crafting",
 		ru = "Кузница",
@@ -309,7 +283,7 @@ local localizations = {
  ["pt-br"] = "Abre a visualização de fabricação.",
 	},
 
--- Armoury Exchange
+	-- Armoury Exchange
 	open_credits_vendor_view_key = {
 		en = "Armoury Exchange",
 		ru = "Оружейная",
@@ -339,7 +313,7 @@ local localizations = {
  ["pt-br"] = "Abre o menu para comprar armas e curiosidades.",
 	},
 
--- Mission Board
+	-- Mission Board
 	open_mission_board_view_key = {
 		en = "Mission Board",
 		ru = "Доска миссий",
@@ -369,7 +343,7 @@ local localizations = {
  ["pt-br"] = "Abre a visualização do painel de missões.",
 	},
 
--- Premium Store
+	-- Premium Store
 	open_premium_store_view_key = {
 		en = "Premium Store",
 		ru = "Премиум-магазин",
@@ -399,7 +373,7 @@ local localizations = {
  ["pt-br"] = "Abre a visualização da loja premium.",
 	},
 
--- Mortis Trials
+	-- Mortis Trials
 	open_training_grounds_view_key = {
 		en = "Mortis Trials",
 		ru = "Испытания Мортис",
@@ -429,7 +403,7 @@ local localizations = {
  ["pt-br"] = "Abre o menu de seleção dos Julgamentos de Mortis.",
 	},
 
--- Meat Grinder
+	-- Meat Grinder
 	open_meatgrinder_view_key = {
 		en = "Meat Grinder",
 		ru = "Мясорубка",
@@ -459,7 +433,7 @@ local localizations = {
  ["pt-br"] = "Inicia diretamente a missão de treinamento «Moinho de Carne».",
 	},
 
--- Social menu
+	-- Social menu
 	open_social_view_key = {
 		en = "Social menu",
 		ru = "Социальное меню",
@@ -489,7 +463,37 @@ local localizations = {
  ["pt-br"] = "Abre o menu para gerenciar a equipe de ataque, amigos e convites.",
 	},
 
--- Commissary (Cosmetics)
+	-- Party Finder (Group Finder)
+	open_group_finder_view_key = {
+		en = "Party Finder",
+		ru = "Поиск группы",
+ ["zh-cn"] = "组队寻找器",
+ ["zh-tw"] = "組隊尋找器",
+		de = "Gruppensuche",
+		fr = "Recherche de groupe",
+		ja = "グループ検索",
+		ko = "그룹 찾기",
+		it = "Ricerca gruppo",
+		pl = "Wyszukiwanie grupy",
+		es = "Buscador de grupo",
+ ["pt-br"] = "Buscador de grupo",
+	},
+	open_group_finder_view_key_description = {
+		en = "Opens the Party Finder (Group Finder) view. When the Havoc view is open, opens on top of it as a child view instead of closing Havoc.",
+		ru = "Открывает окно поиска группы. Если открыт Хавок, окно появляется поверх него как дочернее, не закрывая Хавок.",
+ ["zh-cn"] = "打开组队寻找器。当浩劫界面打开时，作为子界面叠加在其上，不会关闭浩劫界面。",
+ ["zh-tw"] = "打開組隊尋找器。當浩劫介面打開時，作為子介面疊加在其上，不會關閉浩劫介面。",
+		de = "Öffnet die Gruppensuche. Bei geöffneter Havoc-Ansicht wird sie als Kindansicht darüber geöffnet, ohne Havoc zu schließen.",
+		fr = "Ouvre la recherche de groupe. Si la vue Havoc est ouverte, s'ouvre par-dessus en tant que vue enfant sans la fermer.",
+		ja = "グループ検索を開きます。ハボックビューが開いている場合は、閉じずに子ビューとして上に開きます。",
+		ko = "그룹 찾기를 엽니다. 하복 화면이 열려 있으면 닫지 않고 자식 화면으로 위에 열립니다.",
+		it = "Apre la ricerca gruppo. Se la vista Flagello è aperta, si apre sopra come vista figlia senza chiuderla.",
+		pl = "Otwiera wyszukiwanie grupy. Jeśli widok Havoc jest otwarty, otwiera się nad nim jako widok podrzędny.",
+		es = "Abre el buscador de grupo. Si la vista Havoc está abierta, se abre encima como vista secundaria sin cerrarla.",
+ ["pt-br"] = "Abre o buscador de grupo. Se a visualização Havoc estiver aberta, abre por cima como visualização filha sem fechá-la.",
+	},
+
+	-- Commissary (Cosmetics)
 	open_commissary_view_key = {
 		en = "Commissary (Cosmetics)",
 		ru = "Комиссариат (косметика)",
@@ -519,7 +523,7 @@ local localizations = {
  ["pt-br"] = "Abre o menu para comprar itens cosméticos para armas e operativos.",
 	},
 
--- Penance
+	-- Penance
 	open_penance_view_key = {
 		en = "Shrine Penitentax",
 		ru = "Святилище Искуплений",
@@ -549,7 +553,7 @@ local localizations = {
  ["pt-br"] = "Abre a visualização de penitências.",
 	},
 
--- Havoc Mode
+	-- Havoc Mode
 	open_havoc_view_key = {
 		en = "Havoc Mode",
 		ru = "Режим Хавок",
@@ -579,7 +583,7 @@ local localizations = {
  ["pt-br"] = "Abre o menu Havoc.",
 	},
 
--- Expedition Mode
+	-- Expedition Mode
 	open_expedition_view_key = {
 		en = "Expedition Mode",
 		ru = "Режим Экспедиции",
@@ -609,7 +613,7 @@ local localizations = {
  ["pt-br"] = "Abre o menu Expedição.",
 	},
 
--- Quit Game
+	-- Quit Game
 	quit_game_key = {
 		en = "Quit Game",
 		ru = "Выйти из игры",
@@ -669,6 +673,37 @@ local localizations = {
  ["pt-br"] = "ms",
 	},
 
+	-- Delay before pressing the first option inside Melk's root view to navigate into Contracts.
+	contracts_open_delay = {
+		en = "Contracts Menu Delay",
+		ru = "Задержка меню Контрактов",
+ ["zh-cn"] = "合同菜单延迟",
+ ["zh-tw"] = "合約選單延遲",
+		de = "Verzögerung des Vertragsmenüs",
+		fr = "Délai du menu des contrats",
+		ja = "契約メニューの遅延",
+		ko = "계약 메뉴 지연",
+		it = "Ritardo del menu contratti",
+		pl = "Opóźnienie menu kontraktów",
+		es = "Retraso del menú de contratos",
+ ["pt-br"] = "Atraso do menu de contratos",
+	},
+	contracts_open_delay_description = {
+		en = "Delay before pressing the first option inside Melk's root menu to enter Contracts. Increase if the navigation does not fire.",
+		ru = "Задержка перед нажатием первой опции в корневом меню Мелка для входа в Контракты. Увеличьте, если переход не срабатывает.",
+ ["zh-cn"] = "按下梅尔克大人主菜单中第一个选项进入合同前的延迟。如果导航未触发，请增加此值。",
+ ["zh-tw"] = "按下梅爾克大人主選單中第一個選項進入合約前的延遲。如果導覽未觸發，請增加此值。",
+		de = "Verzögerung, bevor die erste Option im Melk-Hauptmenü gedrückt wird. Erhöhen Sie den Wert, wenn die Navigation nicht ausgelöst wird.",
+		fr = "Délai avant d'appuyer sur la première option du menu principal de Melk pour entrer dans les contrats.",
+		ja = "メルクのルートメニューで最初のオプションを押すまでの遅延。遷移しない場合はこの値を増やしてください。",
+		ko = "멜크 루트 메뉴에서 첫 번째 옵션을 누르기 전 지연입니다. 이동이 안 되면 이 값을 늘리세요.",
+		it = "Ritardo prima di premere la prima opzione nel menu principale di Melk per entrare nei contratti.",
+		pl = "Opóźnienie przed naciśnięciem pierwszej opcji w menu głównym Melka, aby wejść do kontraktów.",
+		es = "Retraso antes de pulsar la primera opción en el menú principal de Melk para entrar en los contratos.",
+ ["pt-br"] = "Atraso antes de pressionar a primeira opção no menu principal do Melk para entrar nos contratos.",
+	},
+
+	-- Delay before opening the Group Finder from the Havoc view.
 	group_finder_open_delay = {
 		en = "Havoc Group Finder Delay",
 		ru = "Задержка поиска группы Хавок",
